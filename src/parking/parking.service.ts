@@ -80,6 +80,23 @@ export class ParkingService {
     return matchingCars;
   }
 
+  //fetch slot number according to reg no method
+  getSlotNumbersByRegistration(registration_no: string): number[] | { message: string } {
+    const matchingSlots: number[] = [];
+  
+    for (const [slot, { vehicle_number }] of this.occupiedSlots.entries()) {
+      if (vehicle_number === registration_no) {
+        matchingSlots.push(slot);
+      }
+    }
+  
+    if (matchingSlots.length === 0) {
+      return { message: `No car found with registration number ${registration_no}` };
+    }
+  
+    return matchingSlots;
+  }
+
   // this method will give all the slot numbers of the car of a specific color
   getSlotNumbersByColor(color: string): number[] | { message: string } {
     const matchingSlots: number[] = [];

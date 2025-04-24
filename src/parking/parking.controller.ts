@@ -60,4 +60,10 @@ export class ParkingController {
   getParkingStatus() {
     return this.parkingService.getStatus();
   }
+
+  // get method to count cars by color
+  @Get('count/:color')
+  countCarsByColor(@Param('color') color: string) {
+    return this.parkingService.countCarsByColor(color);
+  }
 }

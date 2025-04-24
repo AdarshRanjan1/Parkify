@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import MinHeap  from 'heap-js'; 
-// I will use min heap to optimize 
+// I will use min heap becaue that will optimize 
 // the time complexity of finding the first 
 // free slot doing a linear search would take O(n) time but with
 // min heap it will just take O(log n)
@@ -158,5 +158,19 @@ export class ParkingService {
     }
   
     return status;
+  }
+
+
+  // Extra feature - count cars by color
+  countCarsByColor(color: string): { color: string; count: number } {
+    let count = 0;
+  
+    for (const { color: carColor } of this.occupiedSlots.values()) {
+      if (carColor.toLowerCase() === color.toLowerCase()) {
+        count++;
+      }
+    }
+  
+    return { color, count };
   }
 }

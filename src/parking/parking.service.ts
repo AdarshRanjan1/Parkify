@@ -62,4 +62,16 @@ export class ParkingService {
       slot_number: slotNumber,
     };
   }
+
+
+  //method to get reg nos of a particular color car
+  getRegistrationNumbersByColor(color: string): string[] {
+    const matchingCars: string[] = [];
+    for (const { vehicle_number, color: carColor } of this.occupiedSlots.values()) {
+      if (carColor.toLowerCase() === color.toLowerCase()) {
+        matchingCars.push(vehicle_number);
+      }
+    }
+    return matchingCars;
+  }
 }

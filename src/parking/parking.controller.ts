@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Patch } from '@nestjs/common';
+import { Body, Controller, Post, Patch, Get, Param } from '@nestjs/common';
 import { ParkingService } from './parking.service';
 
 // controllers will handle the api routes
@@ -27,5 +27,12 @@ export class ParkingController {
     @Body('color') color: string,
   ) {
     return this.parkingService.parkVehicle(vehicleNumber, color);
+  }
+
+  
+  // get method for regno of particular car color
+  @Get('/registration_numbers/:color')
+  getRegistrationNumbersByColor(@Param('color') color: string) {
+    return this.parkingService.getRegistrationNumbersByColor(color);
   }
 }

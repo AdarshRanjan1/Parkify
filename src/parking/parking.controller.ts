@@ -48,4 +48,10 @@ export class ParkingController {
   clearSlot(@Body() body: { slot_number?: number; car_registration_no?: string }) {
     return this.parkingService.clearSlot(body);
   }
+
+  // get status of all method
+  @Get('status')
+  getParkingStatus() {
+    return this.parkingService.getStatus();
+  }
 }

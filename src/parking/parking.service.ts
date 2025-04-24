@@ -65,13 +65,18 @@ export class ParkingService {
 
 
   //method to get reg nos of a particular color car
-  getRegistrationNumbersByColor(color: string): string[] {
+  getRegistrationNumbersByColor(color: string): string[] | { message: string } {
     const matchingCars: string[] = [];
     for (const { vehicle_number, color: carColor } of this.occupiedSlots.values()) {
       if (carColor.toLowerCase() === color.toLowerCase()) {
         matchingCars.push(vehicle_number);
       }
     }
+
+    if(matchingCars.length === 0){
+      return { message: `There are no registration numbers with this ${color} color car.`};
+    }
+
     return matchingCars;
   }
 
@@ -120,5 +125,21 @@ export class ParkingService {
     }
   
     return { message: 'Invalid input. Provide either slot_number or car_registration_no.' };
+  }
+
+
+  // get status method (fetchs all the occupied slots with the car details)
+  getStatus(): { slot_no: number; registration_no: string; color: string }[] {
+    const status: { slot_no: number; registration_no: string; color: string }[] = [];
+  
+    for (const [slot, { vehicle_number, color }] of this.occupiedSlots.entries()) {
+      status.push({
+        slot_no: slot,
+        registration_no: vehicle_number,
+        color: color
+      });
+    }
+  
+    return status;
   }
 }

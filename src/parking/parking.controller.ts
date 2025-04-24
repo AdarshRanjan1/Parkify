@@ -38,8 +38,14 @@ export class ParkingController {
 
 
   // get method to get slot nos of specific colored car
-  @Get('/slot_numbers/:color')
-  getSlotNumbersByColor(@Param('color') color: string) {
+  @Get('slot_numbers/:color')
+  getSlotNumbers(@Param('color') color: string) {
     return this.parkingService.getSlotNumbersByColor(color);
+  }
+
+  // clear method 
+  @Post('clear')
+  clearSlot(@Body() body: { slot_number?: number; car_registration_no?: string }) {
+    return this.parkingService.clearSlot(body);
   }
 }

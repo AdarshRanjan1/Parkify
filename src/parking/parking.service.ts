@@ -76,13 +76,49 @@ export class ParkingService {
   }
 
   // this method will give all the slot numbers of the car of a specific color
-  getSlotNumbersByColor(color: string): number[] {
+  getSlotNumbersByColor(color: string): number[] | { message: string } {
     const matchingSlots: number[] = [];
     for (const [slot, { color: carColor }] of this.occupiedSlots.entries()) {
       if (carColor.toLowerCase() === color.toLowerCase()) {
         matchingSlots.push(slot);
       }
     }
+
+    if(matchingSlots.length == 0){
+      return { message: `There are no cars with color ${color}.` };
+    }  
+
     return matchingSlots;
+  }
+
+
+  // method to clear the slot using either slot number or the registration number
+  clearSlot(data: { slot_number?: number; car_registration_no?: string }) {
+    if (data.slot_number !== undefined) {
+      const { slot_number } = data;
+      const vehicle = this.occupiedSlots.get(slot_number);
+
+    if (!vehicle) {
+      return { message: `Slot ${slot_number} is already free or does not exist.` };
+    }
+
+      console.log(`Clearing slot ${slot_number}:`, vehicle);
+      this.occupiedSlots.delete(slot_number);
+      this.availableSlots.push(slot_number);
+      return { freed_slot_number: slot_number };
+    }
+  
+    if (data.car_registration_no) {
+      for (const [slot, vehicle] of this.occupiedSlots.entries()) {
+        if (vehicle.vehicle_number === data.car_registration_no) {
+          this.occupiedSlots.delete(slot);
+          this.availableSlots.push(slot);
+          return { freed_slot_number: slot };
+        }
+      }
+      return { message: `Car with registration number ${data.car_registration_no} not found.` };
+    }
+  
+    return { message: 'Invalid input. Provide either slot_number or car_registration_no.' };
   }
 }

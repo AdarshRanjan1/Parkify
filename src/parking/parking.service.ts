@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import MinHeap  from 'heap-js'; 
 // I will use min heap becaue that will optimize 
 // the time complexity of finding the first 
@@ -15,6 +15,12 @@ export class ParkingService {
 
   // This one is for initializing the size of the parking lot in the beginning
   initializeParking(totalSlots: number) {
+    // Check for missing or invalid totalSlots
+    if (!totalSlots || totalSlots <= 0) {
+      throw new BadRequestException('Invalid totalSlots. Please provide a positive number greater than zero.');
+    }
+
+    // Now we will initialize because number is positive
     this.parkingSlots = Array(totalSlots).fill(null);
     this.availableSlots = new MinHeap<number>();
     for (let i = 1; i <= totalSlots; i++) {
@@ -25,6 +31,23 @@ export class ParkingService {
   
   // This is for increasing the size of the parking lot if necessary
   addSlots(incrementSlot: number) {
+    if (this.parkingSlots.length === 0) {
+      throw new BadRequestException(
+        'Parking lot not initialized yet. Please initialize first using /init.',
+      );
+    }
+
+    if (
+      incrementSlot === undefined ||
+      isNaN(incrementSlot) ||
+      incrementSlot <= 0
+    ) {
+      throw new BadRequestException(
+        'Invalid incrementSlot. Please provide a positive number greater than zero.',
+      );
+    }
+  
+
     const currentTotal = this.parkingSlots.length; // Existing total
     const newSlots = Array(incrementSlot).fill(null);
     this.parkingSlots.push(...newSlots);
@@ -44,8 +67,19 @@ export class ParkingService {
 
   // This endpoint is used for checking if slot is available or not and then appointing the slot 
   parkVehicle(vehicle_number: string, color: string) {
+    if (!vehicle_number || !color) {
+      throw new BadRequestException('Both vehicle_number and color are required.');
+    }
+  
     if (this.availableSlots.size() === 0) {
       return { message: 'No available slots' };
+    }
+  
+    // Check if vehicle_number already exists (duplicate vehicle prevention)
+    for (const vehicle of this.occupiedSlots.values()) {
+      if (vehicle.vehicle_number === vehicle_number) {
+        throw new BadRequestException(`Vehicle with number ${vehicle_number} is already parked.`);
+      }
     }
   
     const slotNumber = this.availableSlots.pop();
@@ -54,7 +88,6 @@ export class ParkingService {
       return { message: 'Error: No slot returned from heap.' };
     }
   
-    // Store both vehicle number and color
     this.occupiedSlots.set(slotNumber, { vehicle_number, color });
   
     return {
@@ -116,6 +149,11 @@ export class ParkingService {
 
   // method to clear the slot using either slot number or the registration number
   clearSlot(data: { slot_number?: number; car_registration_no?: string }) {
+    if (!data || (data.slot_number === undefined && !data.car_registration_no)) {
+      return { message: 'Invalid input. Provide either slot_number or car_registration_no.' };
+    }
+
+
     if (data.slot_number !== undefined) {
       const { slot_number } = data;
       const vehicle = this.occupiedSlots.get(slot_number);
@@ -146,7 +184,7 @@ export class ParkingService {
 
 
   // get status method (fetchs all the occupied slots with the car details)
-  getStatus(): { slot_no: number; registration_no: string; color: string }[] {
+  getStatus(): { slot_no: number; registration_no: string; color: string }[] | { message: string } {
     const status: { slot_no: number; registration_no: string; color: string }[] = [];
   
     for (const [slot, { vehicle_number, color }] of this.occupiedSlots.entries()) {
@@ -155,6 +193,10 @@ export class ParkingService {
         registration_no: vehicle_number,
         color: color
       });
+    }
+
+    if(status.length === 0){
+      return { message: `The parking lot is empty.`};
     }
   
     return status;
@@ -172,5 +214,22 @@ export class ParkingService {
     }
   
     return { color, count };
+  }
+
+
+  // Extra feature - reset the whole parking lot
+  resetParkingLot(): { message: string } {
+    const totalSlots = this.parkingSlots.length;
+  
+    // Reset data structures
+    this.occupiedSlots.clear();
+    this.availableSlots = new MinHeap<number>();
+    
+    // Refill MinHeap with all slots
+    for (let i = 1; i <= totalSlots; i++) {
+      this.availableSlots.push(i);
+    }
+  
+    return { message: 'Parking lot has been reset. All slots are now available.' };
   }
 }

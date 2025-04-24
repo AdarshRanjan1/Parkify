@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Patch, Get, Param } from '@nestjs/common';
+import { Body, Controller, Post, Patch, Get, Param, Delete } from '@nestjs/common';
 import { ParkingService } from './parking.service';
 
 // controllers will handle the api routes
@@ -50,7 +50,7 @@ export class ParkingController {
   }
 
   // clear method 
-  @Post('clear')
+  @Delete('clear')
   clearSlot(@Body() body: { slot_number?: number; car_registration_no?: string }) {
     return this.parkingService.clearSlot(body);
   }
@@ -65,5 +65,11 @@ export class ParkingController {
   @Get('count/:color')
   countCarsByColor(@Param('color') color: string) {
     return this.parkingService.countCarsByColor(color);
+  }
+
+  // reset entire parking lot method
+  @Delete('reset')
+  resetParkingLot() {
+    return this.parkingService.resetParkingLot();
   }
 }

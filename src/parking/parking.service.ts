@@ -11,7 +11,7 @@ export class ParkingService {
   private parkingSlots: (string | null)[] = []; //Stores the no of slots
   private availableSlots = new MinHeap<number>(); // Stores available no of slots
   private occupiedSlots = new Map<number, { vehicle_number: string; color: string }>(); // Stores occupied no of slots
-  // private occupiedSlots = new Map<number, string>();
+
 
   // This one is for initializing the size of the parking lot in the beginning
   initializeParking(totalSlots: number) {
@@ -73,5 +73,16 @@ export class ParkingService {
       }
     }
     return matchingCars;
+  }
+
+  // this method will give all the slot numbers of the car of a specific color
+  getSlotNumbersByColor(color: string): number[] {
+    const matchingSlots: number[] = [];
+    for (const [slot, { color: carColor }] of this.occupiedSlots.entries()) {
+      if (carColor.toLowerCase() === color.toLowerCase()) {
+        matchingSlots.push(slot);
+      }
+    }
+    return matchingSlots;
   }
 }

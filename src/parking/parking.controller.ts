@@ -35,4 +35,11 @@ export class ParkingController {
   getRegistrationNumbersByColor(@Param('color') color: string) {
     return this.parkingService.getRegistrationNumbersByColor(color);
   }
+
+
+  // get method to get slot nos of specific colored car
+  @Get('/slot_numbers/:color')
+  getSlotNumbersByColor(@Param('color') color: string) {
+    return this.parkingService.getSlotNumbersByColor(color);
+  }
 }
